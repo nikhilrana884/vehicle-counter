@@ -3,6 +3,10 @@ import numpy as np
 
 cap = cv2.VideoCapture('video.mp4')
 
+count_line_pos = 550
+min_width_rect=80
+min_height_rect=80
+
 algo = cv2.createBackgroundSubtractorMOG2()
 
 while True:
@@ -15,10 +19,19 @@ while True:
     kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (5,5))
     dilatada = cv2.morphologyEx(dilat,cv2.MORPH_CLOSE,kernel)
     dilatada = cv2.morphologyEx(dilatada,cv2.MORPH_CLOSE,kernel)
-    counter = cv2.findContours(dilatada, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+    counterShape,h = cv2.findContours(dilatada, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
 
+    cv2.line(frame1,(25,count_line_pos),(1200,count_line_pos),(250,120,0),3)
 
-    cv2.imshow('Detector',dilatada)
+    for (i,z) in enumerate(counterShape):
+        (x,y,w,h) = cv2.boundingRect(z)
+        validate_counter = (w>=min_width_rect)and (h>=min_height_rect)
+        if not validate_counter:
+            continue
+        
+        cv2.rectangle(frame1,(x,y),(x+w,y+h),(0,255,255),2)
+
+    cv2.imshow('Video',frame1)
 
     #cv2.imshow('Video Original', frame1)
 
